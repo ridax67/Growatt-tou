@@ -1,0 +1,18 @@
+##################################
+# Input_select helpers
+##################################
+
+growatt_tou_radnr:
+    name: Growatt TOU Radnr
+    options:
+      - "1"
+      - "2"
+      - "3"
+      - "4"
+      - "5"
+      - "6"
+      - "7"
+      - "8"
+      - "9"
+    initial: "1"
+    

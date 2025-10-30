@@ -1,0 +1,104 @@
+- alias: Initiera och synk Growatt-tider
+  id: tou_init_och_synk
+  trigger:
+  - platform: homeassistant
+    event: start
+  - platform: state
+    entity_id:
+    - sensor.growatt_inverter_time_1_begin_read
+    - sensor.growatt_inverter_time_1_end_read
+    - sensor.growatt_inverter_time_1_mode_read
+    - sensor.growatt_inverter_time_1_active_read
+    - sensor.growatt_inverter_time_2_begin_read
+    - sensor.growatt_inverter_time_2_end_read
+    - sensor.growatt_inverter_time_2_mode_read
+    - sensor.growatt_inverter_time_2_active_read
+    - sensor.growatt_inverter_time_3_begin_read
+    - sensor.growatt_inverter_time_3_end_read
+    - sensor.growatt_inverter_time_3_mode_read
+    - sensor.growatt_inverter_time_3_active_read
+    - sensor.growatt_inverter_time_4_begin_read
+    - sensor.growatt_inverter_time_4_end_read
+    - sensor.growatt_inverter_time_4_mode_read
+    - sensor.growatt_inverter_time_4_active_read
+    - sensor.growatt_inverter_time_5_begin_read
+    - sensor.growatt_inverter_time_5_end_read
+    - sensor.growatt_inverter_time_5_mode_read
+    - sensor.growatt_inverter_time_5_active_read
+    - sensor.growatt_inverter_time_6_begin_read
+    - sensor.growatt_inverter_time_6_end_read
+    - sensor.growatt_inverter_time_6_mode_read
+    - sensor.growatt_inverter_time_6_active_read
+    - sensor.growatt_inverter_time_7_begin_read
+    - sensor.growatt_inverter_time_7_end_read
+    - sensor.growatt_inverter_time_7_mode_read
+    - sensor.growatt_inverter_time_7_active_read
+    - sensor.growatt_inverter_time_8_begin_read
+    - sensor.growatt_inverter_time_8_end_read
+    - sensor.growatt_inverter_time_8_mode_read
+    - sensor.growatt_inverter_time_8_active_read
+    - sensor.growatt_inverter_time_9_begin_read
+    - sensor.growatt_inverter_time_9_end_read
+    - sensor.growatt_inverter_time_9_mode_read
+    - sensor.growatt_inverter_time_9_active_read
+  action:
+  - repeat:
+      count: 9
+      sequence:
+      - choose:
+        - conditions: "{% set idx = repeat.index %} {% set trigger_entity = trigger.entity_id
+            %} {{ trigger.platform == 'homeassistant' \n   or trigger_entity in [\n
+            \     'sensor.growatt_inverter_time_' ~ idx ~ '_begin_read',\n      'sensor.growatt_inverter_time_'
+            ~ idx ~ '_end_read',\n      'sensor.growatt_inverter_time_' ~ idx ~ '_mode_read',\n
+            \     'sensor.growatt_inverter_time_' ~ idx ~ '_active_read'] }}\n"
+          sequence:
+          - service: select.select_option
+            target:
+              entity_id: select.growatt_inverter_time_{{ repeat.index }}_begin
+            data:
+              option: '{{ states(''sensor.growatt_inverter_time_'' ~ repeat.index
+                ~ ''_begin_read'') }}'
+          - service: select.select_option
+            target:
+              entity_id: select.growatt_inverter_time_{{ repeat.index }}_end
+            data:
+              option: '{{ states(''sensor.growatt_inverter_time_'' ~ repeat.index
+                ~ ''_end_read'') }}'
+          - service: select.select_option
+            target:
+              entity_id: select.growatt_inverter_time_{{ repeat.index }}_mode
+            data:
+              option: '{{ states(''sensor.growatt_inverter_time_'' ~ repeat.index
+                ~ ''_mode_read'') }}'
+          - service: select.select_option
+            target:
+              entity_id: select.growatt_inverter_time_{{ repeat.index }}_active
+            data:
+              option: '{{ states(''sensor.growatt_inverter_time_'' ~ repeat.index
+                ~ ''_active_read'') }}'
+  mode: single
+- id: '1761377882860'
+  alias: LÃ¥s upp laddkabel
+  description: ''
+  triggers:
+  - device_id: 039c05a46fbbc9db03e5df95126a4c91
+    domain: cover
+    entity_id: 84c2c743c3b3888fc03183105521017f
+    type: opened
+    trigger: device
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  conditions:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.stan_charger_mode
+      state: disconnected
+  actions:
+  - device_id: 03205d07022a6ae5ca2a06e77ba25402
+    domain: lock
+    entity_id: 7c6381c80f3fcf1ea96ea48a3966e19d
+    type: unlock
+  mode: single
