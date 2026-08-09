@@ -1,18 +1,30 @@
 type: vertical-stack
 cards:
   - type: markdown
+    card_modd:
+      style: |
+        ha-card
+         {
+            --markdown-table-border-style: none;
+         }
     content: >
-      ### TOU-schema
-       | | Nr |  | Start | Slut | Mode | Aktiv | Mode-text
+      ### TOU-schema (7-9 auto)
+       | | Nr | | Start | Slut | | Aktiv | Mode-text
       | --- | --- | --- | --- | --- | --- | --- | ---
 
-      {% for i in range(1,10) %}{% set
-      start=states('sensor.growatt_inverter_time_' ~ i ~ '_begin_read') |
+      {% for i in range(1,10) %}{% if
+      is_state('select.growatt_inverter_vpp_status','Enabled') %}{% set
+      start=states('select.growatt_inverter_time_' ~ i ~ '_begin') |
+      default('00:00') %}{% set end=states('select.growatt_inverter_time_' ~ i ~
+      '_end') | default('00:00') %}{% set
+      active=states('select.growatt_inverter_time_' ~ i ~ '_active') %}{% set
+      mode=states('select.growatt_inverter_time_' ~ i ~ '_mode') %}{% else %}{%
+      set start=states('sensor.growatt_inverter_time_' ~ i ~ '_begin_read') |
       default('00:00') %}{% set end=states('sensor.growatt_inverter_time_' ~ i ~
       '_end_read') | default('00:00') %}{% set
       active=states('sensor.growatt_inverter_time_' ~ i ~ '_active_read') %}{%
       set mode=states('sensor.growatt_inverter_time_' ~ i ~ '_mode_read') %}{%
-      set now_ts=now() %}{% set today=now().date() %}{% set
+      endif %}{% set now_ts=now() %}{% set today=now().date() %}{% set
       start_dt=strptime(today|string + ' ' + start, '%Y-%m-%d
       %H:%M').replace(tzinfo=now().tzinfo) %}{% set end_dt=strptime(today|string
       + ' ' + end, '%Y-%m-%d %H:%M').replace(tzinfo=now().tzinfo) %}{% if end_dt
@@ -27,9 +39,9 @@ cards:
       {% endfor %}
   - type: custom:state-switch
     entity: input_select.growatt_tou_radnr
-    default: "1"
+    default: '1'
     states:
-      "1":
+      '1':
         type: horizontal-stack
         cards:
           - type: vertical-stack
@@ -45,7 +57,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "1"
+                    option: '1'
               - type: custom:button-card
                 show_name: false
                 icon: mdi:arrow-down
@@ -57,7 +69,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "2"
+                    option: '2'
           - type: custom:button-card
             show_name: false
             tap_action:
@@ -84,7 +96,7 @@ cards:
                 - width: 100px
                 - height: 50px
               grid:
-                - grid-template-areas: "\"icon1 icon2\" \"time1 time2\""
+                - grid-template-areas: '"icon1 icon2" "time1 time2"'
                 - grid-template-columns: 1fr 1fr
                 - grid-template-rows: 1fr 1fr
                 - justify-items: center
@@ -131,6 +143,8 @@ cards:
               [[[ return states['select.growatt_inverter_time_1_mode'].state ===
               'Battery First' ? 'mdi:flash' : 'mdi:battery'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -153,6 +167,8 @@ cards:
               === 'Enabled' ? 'mdi:check-circle-outline' :
               'mdi:close-circle-outline'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -167,15 +183,20 @@ cards:
                   [[[ return
                   states['select.growatt_inverter_time_1_active'].state ===
                   'Enabled' ? 'Disabled' : 'Enabled'; ]]]
-          - type: custom:button-card
-            name: Send 1
-            icon: mdi:autorenew
-            tap_action:
-              action: call-service
-              service: button.press
-              service_data:
-                entity_id: button.growatt_inverter_time_1_update
-      "2":
+          - type: conditional
+            conditions:
+              - entity: select.growatt_inverter_vpp_status
+                state: Disabled
+            card:
+              type: custom:button-card
+              name: Send 1
+              icon: mdi:autorenew
+              tap_action:
+                action: call-service
+                service: button.press
+                service_data:
+                  entity_id: button.growatt_inverter_time_1_update
+      '2':
         type: horizontal-stack
         cards:
           - type: vertical-stack
@@ -191,7 +212,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "1"
+                    option: '1'
               - type: custom:button-card
                 show_name: false
                 icon: mdi:arrow-down
@@ -203,7 +224,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "3"
+                    option: '3'
           - type: custom:button-card
             show_name: false
             tap_action:
@@ -230,7 +251,7 @@ cards:
                 - width: 100px
                 - height: 50px
               grid:
-                - grid-template-areas: "\"icon1 icon2\" \"time1 time2\""
+                - grid-template-areas: '"icon1 icon2" "time1 time2"'
                 - grid-template-columns: 1fr 1fr
                 - grid-template-rows: 1fr 1fr
                 - justify-items: center
@@ -277,6 +298,8 @@ cards:
               [[[ return states['select.growatt_inverter_time_2_mode'].state ===
               'Battery First' ? 'mdi:flash' : 'mdi:battery'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -299,6 +322,8 @@ cards:
               === 'Enabled' ? 'mdi:check-circle-outline' :
               'mdi:close-circle-outline'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -313,15 +338,20 @@ cards:
                   [[[ return
                   states['select.growatt_inverter_time_2_active'].state ===
                   'Enabled' ? 'Disabled' : 'Enabled'; ]]]
-          - type: custom:button-card
-            name: Send 2
-            icon: mdi:autorenew
-            tap_action:
-              action: call-service
-              service: button.press
-              service_data:
-                entity_id: button.growatt_inverter_time_2_update
-      "3":
+          - type: conditional
+            conditions:
+              - entity: select.growatt_inverter_vpp_status
+                state: Disabled
+            card:
+              type: custom:button-card
+              name: Send 2
+              icon: mdi:autorenew
+              tap_action:
+                action: call-service
+                service: button.press
+                service_data:
+                  entity_id: button.growatt_inverter_time_2_update
+      '3':
         type: horizontal-stack
         cards:
           - type: vertical-stack
@@ -337,7 +367,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "2"
+                    option: '2'
               - type: custom:button-card
                 show_name: false
                 icon: mdi:arrow-down
@@ -349,7 +379,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "4"
+                    option: '4'
           - type: custom:button-card
             show_name: false
             tap_action:
@@ -376,7 +406,7 @@ cards:
                 - width: 100px
                 - height: 50px
               grid:
-                - grid-template-areas: "\"icon1 icon2\" \"time1 time2\""
+                - grid-template-areas: '"icon1 icon2" "time1 time2"'
                 - grid-template-columns: 1fr 1fr
                 - grid-template-rows: 1fr 1fr
                 - justify-items: center
@@ -423,6 +453,8 @@ cards:
               [[[ return states['select.growatt_inverter_time_3_mode'].state ===
               'Battery First' ? 'mdi:flash' : 'mdi:battery'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -445,6 +477,8 @@ cards:
               === 'Enabled' ? 'mdi:check-circle-outline' :
               'mdi:close-circle-outline'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -459,15 +493,20 @@ cards:
                   [[[ return
                   states['select.growatt_inverter_time_3_active'].state ===
                   'Enabled' ? 'Disabled' : 'Enabled'; ]]]
-          - type: custom:button-card
-            name: Send 3
-            icon: mdi:autorenew
-            tap_action:
-              action: call-service
-              service: button.press
-              service_data:
-                entity_id: button.growatt_inverter_time_3_update
-      "4":
+          - type: conditional
+            conditions:
+              - entity: select.growatt_inverter_vpp_status
+                state: Disabled
+            card:
+              type: custom:button-card
+              name: Send 3
+              icon: mdi:autorenew
+              tap_action:
+                action: call-service
+                service: button.press
+                service_data:
+                  entity_id: button.growatt_inverter_time_3_update
+      '4':
         type: horizontal-stack
         cards:
           - type: vertical-stack
@@ -483,7 +522,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "3"
+                    option: '3'
               - type: custom:button-card
                 show_name: false
                 icon: mdi:arrow-down
@@ -495,7 +534,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "5"
+                    option: '5'
           - type: custom:button-card
             show_name: false
             tap_action:
@@ -522,7 +561,7 @@ cards:
                 - width: 100px
                 - height: 50px
               grid:
-                - grid-template-areas: "\"icon1 icon2\" \"time1 time2\""
+                - grid-template-areas: '"icon1 icon2" "time1 time2"'
                 - grid-template-columns: 1fr 1fr
                 - grid-template-rows: 1fr 1fr
                 - justify-items: center
@@ -569,6 +608,8 @@ cards:
               [[[ return states['select.growatt_inverter_time_4_mode'].state ===
               'Battery First' ? 'mdi:flash' : 'mdi:battery'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -591,6 +632,8 @@ cards:
               === 'Enabled' ? 'mdi:check-circle-outline' :
               'mdi:close-circle-outline'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -605,15 +648,20 @@ cards:
                   [[[ return
                   states['select.growatt_inverter_time_4_active'].state ===
                   'Enabled' ? 'Disabled' : 'Enabled'; ]]]
-          - type: custom:button-card
-            name: Send 4
-            icon: mdi:autorenew
-            tap_action:
-              action: call-service
-              service: button.press
-              service_data:
-                entity_id: button.growatt_inverter_time_4_update
-      "5":
+          - type: conditional
+            conditions:
+              - entity: select.growatt_inverter_vpp_status
+                state: Disabled
+            card:
+              type: custom:button-card
+              name: Send 4
+              icon: mdi:autorenew
+              tap_action:
+                action: call-service
+                service: button.press
+                service_data:
+                  entity_id: button.growatt_inverter_time_4_update
+      '5':
         type: horizontal-stack
         cards:
           - type: vertical-stack
@@ -629,7 +677,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "4"
+                    option: '4'
               - type: custom:button-card
                 show_name: false
                 icon: mdi:arrow-down
@@ -641,7 +689,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "6"
+                    option: '6'
           - type: custom:button-card
             show_name: false
             tap_action:
@@ -668,7 +716,7 @@ cards:
                 - width: 100px
                 - height: 50px
               grid:
-                - grid-template-areas: "\"icon1 icon2\" \"time1 time2\""
+                - grid-template-areas: '"icon1 icon2" "time1 time2"'
                 - grid-template-columns: 1fr 1fr
                 - grid-template-rows: 1fr 1fr
                 - justify-items: center
@@ -715,6 +763,8 @@ cards:
               [[[ return states['select.growatt_inverter_time_5_mode'].state ===
               'Battery First' ? 'mdi:flash' : 'mdi:battery'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -737,6 +787,8 @@ cards:
               === 'Enabled' ? 'mdi:check-circle-outline' :
               'mdi:close-circle-outline'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -750,16 +802,21 @@ cards:
                 option: >
                   [[[ return
                   states['select.growatt_inverter_time_5_active'].state ===
-                  'Enabled' ? 'Disabled' : 'Enabled'; ]]]
-          - type: custom:button-card
-            name: Send 5
-            icon: mdi:autorenew
-            tap_action:
-              action: call-service
-              service: button.press
-              service_data:
-                entity_id: button.growatt_inverter_time_5_update
-      "6":
+                  'Enabled' ? 'Disabled' : 'Enabled'; ]]
+          - type: conditional
+            conditions:
+              - entity: select.growatt_inverter_vpp_status
+                state: Disabled
+            card:
+              type: custom:button-card
+              name: Send 5
+              icon: mdi:autorenew
+              tap_action:
+                action: call-service
+                service: button.press
+                service_data:
+                  entity_id: button.growatt_inverter_time_5_update
+      '6':
         type: horizontal-stack
         cards:
           - type: vertical-stack
@@ -775,7 +832,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "5"
+                    option: '5'
               - type: custom:button-card
                 show_name: false
                 icon: mdi:arrow-down
@@ -787,7 +844,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "7"
+                    option: '7'
           - type: custom:button-card
             show_name: false
             tap_action:
@@ -814,7 +871,7 @@ cards:
                 - width: 100px
                 - height: 50px
               grid:
-                - grid-template-areas: "\"icon1 icon2\" \"time1 time2\""
+                - grid-template-areas: '"icon1 icon2" "time1 time2"'
                 - grid-template-columns: 1fr 1fr
                 - grid-template-rows: 1fr 1fr
                 - justify-items: center
@@ -861,6 +918,8 @@ cards:
               [[[ return states['select.growatt_inverter_time_6_mode'].state ===
               'Battery First' ? 'mdi:flash' : 'mdi:battery'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -883,6 +942,8 @@ cards:
               === 'Enabled' ? 'mdi:check-circle-outline' :
               'mdi:close-circle-outline'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -897,15 +958,20 @@ cards:
                   [[[ return
                   states['select.growatt_inverter_time_6_active'].state ===
                   'Enabled' ? 'Disabled' : 'Enabled'; ]]]
-          - type: custom:button-card
-            name: Send 6
-            icon: mdi:autorenew
-            tap_action:
-              action: call-service
-              service: button.press
-              service_data:
-                entity_id: button.growatt_inverter_time_6_update
-      "7":
+          - type: conditional
+            conditions:
+              - entity: select.growatt_inverter_vpp_status
+                state: Disabled
+            card:
+              type: custom:button-card
+              name: Send 6
+              icon: mdi:autorenew
+              tap_action:
+                action: call-service
+                service: button.press
+                service_data:
+                  entity_id: button.growatt_inverter_time_6_update
+      '7':
         type: horizontal-stack
         cards:
           - type: vertical-stack
@@ -921,7 +987,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "6"
+                    option: '6'
               - type: custom:button-card
                 show_name: false
                 icon: mdi:arrow-down
@@ -933,7 +999,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "8"
+                    option: '8'
           - type: custom:button-card
             show_name: false
             tap_action:
@@ -960,7 +1026,7 @@ cards:
                 - width: 100px
                 - height: 50px
               grid:
-                - grid-template-areas: "\"icon1 icon2\" \"time1 time2\""
+                - grid-template-areas: '"icon1 icon2" "time1 time2"'
                 - grid-template-columns: 1fr 1fr
                 - grid-template-rows: 1fr 1fr
                 - justify-items: center
@@ -1007,6 +1073,8 @@ cards:
               [[[ return states['select.growatt_inverter_time_7_mode'].state ===
               'Battery First' ? 'mdi:flash' : 'mdi:battery'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -1029,6 +1097,8 @@ cards:
               === 'Enabled' ? 'mdi:check-circle-outline' :
               'mdi:close-circle-outline'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -1042,16 +1112,21 @@ cards:
                 option: >
                   [[[ return
                   states['select.growatt_inverter_time_7_active'].state ===
-                  'Enabled' ? 'Disabled' : 'Enabled'; ]]]
-          - type: custom:button-card
-            name: Send 7
-            icon: mdi:autorenew
-            tap_action:
-              action: call-service
-              service: button.press
-              service_data:
-                entity_id: button.growatt_inverter_time_7_update
-      "8":
+                  'Enabled' ? 'Disabled' : 'Enabled'; ]]]                
+          - type: conditional
+            conditions:
+              - entity: select.growatt_inverter_vpp_status
+                state: Disabled
+            card:
+              type: custom:button-card
+              name: Send 7
+              icon: mdi:autorenew
+              tap_action:
+                action: call-service
+                service: button.press
+                service_data:
+                  entity_id: button.growatt_inverter_time_7_update
+      '8':
         type: horizontal-stack
         cards:
           - type: vertical-stack
@@ -1067,7 +1142,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "7"
+                    option: '7'
               - type: custom:button-card
                 show_name: false
                 icon: mdi:arrow-down
@@ -1079,7 +1154,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "9"
+                    option: '9'
           - type: custom:button-card
             show_name: false
             tap_action:
@@ -1106,7 +1181,7 @@ cards:
                 - width: 100px
                 - height: 50px
               grid:
-                - grid-template-areas: "\"icon1 icon2\" \"time1 time2\""
+                - grid-template-areas: '"icon1 icon2" "time1 time2"'
                 - grid-template-columns: 1fr 1fr
                 - grid-template-rows: 1fr 1fr
                 - justify-items: center
@@ -1153,6 +1228,8 @@ cards:
               [[[ return states['select.growatt_inverter_time_8_mode'].state ===
               'Battery First' ? 'mdi:flash' : 'mdi:battery'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -1175,6 +1252,8 @@ cards:
               === 'Enabled' ? 'mdi:check-circle-outline' :
               'mdi:close-circle-outline'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -1188,16 +1267,21 @@ cards:
                 option: >
                   [[[ return
                   states['select.growatt_inverter_time_8_active'].state ===
-                  'Enabled' ? 'Disabled' : 'Enabled'; ]]]
-          - type: custom:button-card
-            name: Send 8
-            icon: mdi:autorenew
-            tap_action:
-              action: call-service
-              service: button.press
-              service_data:
-                entity_id: button.growatt_inverter_time_8_update
-      "9":
+                  'Enabled' ? 'Disabled' : 'Enabled'; ]]
+          - type: conditional
+            conditions:
+              - entity: select.growatt_inverter_vpp_status
+                state: Disabled
+            card:
+              type: custom:button-card
+              name: Send 8
+              icon: mdi:autorenew
+              tap_action:
+                action: call-service
+                service: button.press
+                service_data:
+                  entity_id: button.growatt_inverter_time_8_update
+      '9':
         type: horizontal-stack
         cards:
           - type: vertical-stack
@@ -1213,7 +1297,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "8"
+                    option: '8'
               - type: custom:button-card
                 show_name: false
                 icon: mdi:arrow-down
@@ -1225,7 +1309,7 @@ cards:
                   service: input_select.select_option
                   service_data:
                     entity_id: input_select.growatt_tou_radnr
-                    option: "9"
+                    option: '9'
           - type: custom:button-card
             show_name: false
             tap_action:
@@ -1252,7 +1336,7 @@ cards:
                 - width: 100px
                 - height: 50px
               grid:
-                - grid-template-areas: "\"icon1 icon2\" \"time1 time2\""
+                - grid-template-areas: '"icon1 icon2" "time1 time2"'
                 - grid-template-columns: 1fr 1fr
                 - grid-template-rows: 1fr 1fr
                 - justify-items: center
@@ -1299,6 +1383,8 @@ cards:
               [[[ return states['select.growatt_inverter_time_9_mode'].state ===
               'Battery First' ? 'mdi:flash' : 'mdi:battery'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -1321,6 +1407,8 @@ cards:
               === 'Enabled' ? 'mdi:check-circle-outline' :
               'mdi:close-circle-outline'; ]]]
             styles:
+              card:
+                - height: 50px
               icon:
                 - color: >
                     [[[ return
@@ -1335,11 +1423,16 @@ cards:
                   [[[ return
                   states['select.growatt_inverter_time_9_active'].state ===
                   'Enabled' ? 'Disabled' : 'Enabled'; ]]]
-          - type: custom:button-card
-            name: Send 9
-            icon: mdi:autorenew
-            tap_action:
-              action: call-service
-              service: button.press
-              service_data:
-                entity_id: button.growatt_inverter_time_9_update
+          - type: conditional
+            conditions:
+              - entity: select.growatt_inverter_vpp_status
+                state: Disabled
+            card:
+              type: custom:button-card
+              name: Send 9
+              icon: mdi:autorenew
+              tap_action:
+                action: call-service
+                service: button.press
+                service_data:
+                  entity_id: button.growatt_inverter_time_9_update
